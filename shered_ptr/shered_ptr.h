@@ -1,14 +1,15 @@
 #pragma once
 
+#include <cassert>
 /*
 -------------TO-DO-LIST-------------
 	+ copy semantic
 	+ move semantic
-	- operator = with rvalue
-	- operator*
-	- operator->
-	- function get()
-	- reset
+	+ operator = with rvalue
+	+ operator*
+	+ operator->
+	+ function get()
+	+ reset
 -------------TO-DO-LIST-------------
 */
 namespace my {
@@ -20,7 +21,7 @@ namespace my {
 			size_t counter_;
 			T* data_;
 
-			proxy (T* init_data);
+			 proxy (T* init_data);
 			~proxy ();
 		};
 		
@@ -38,6 +39,14 @@ namespace my {
 
 		shered_ptr& operator = (const shered_ptr& right);
 		shered_ptr& operator = (shered_ptr&& right);
+
+		T& operator * ();
+		T* operator -> ();
+		T* get ();
+
+		void reset ();
+		void reset (T* new_point);
+
 	}; // class shered_ptr
 
 	
@@ -55,7 +64,7 @@ namespace my {
 
 	template <class T>
 	shered_ptr<T>::~shered_ptr () {
-		printf ("Counter %d\n", proxy_point_->counter_);
+		//printf ("Counter %d\n", proxy_point_->counter_);
 		disconnectProxy ();
 	}
 
@@ -68,6 +77,18 @@ namespace my {
 
 			this->proxy_point_ = right.proxy_point_;
 			proxy_point_->counter_++;
+		}
+		return *this;
+	}
+
+	template <class T>
+	shered_ptr<T>& shered_ptr<T>:: operator = (shered_ptr&& right) {
+		if (this->proxy_point_ != right.proxy_point_) {
+			printf ("this %p right %p\n", this, &right);
+			disconnectProxy ();
+
+			this->proxy_point_ = right.proxy_point_;
+			right.proxy_point_  = nullptr;
 		}
 		return *this;
 	}
@@ -95,6 +116,37 @@ namespace my {
 		}
 	}
 
+	template <class T>
+	T& shered_ptr<T>::operator* () {
+		assert (proxy_point_ != 0);
+		return *(proxy_point_->data_);
+	}
+
+	template <class T>
+	T* shered_ptr<T>::operator-> () {
+		assert (proxy_point_ != 0);
+		return proxy_point_->data_;
+	}
+
+	template <class T>
+	T* shered_ptr<T>::get () {
+		assert (proxy_point_ != 0);
+		return proxy_point_->data_;
+	}
+
+	template <class T>
+	void shered_ptr<T>::reset () {
+		assert (proxy_point_ != 0);
+		delete proxy_point_->data_;
+		proxy_point_->data_ = 0;
+	}
+
+	template <class T>
+	void shered_ptr<T>::reset (T* new_point) {
+		assert (proxy_point_ != 0);
+		delete proxy_point_->data_;
+		proxy_point_->data_ = new_point;
+	}
 	// --------------it-was-realisation-of-shered_ptr----------------
 
 	template <class T>

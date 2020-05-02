@@ -15,6 +15,7 @@ struct var {
 	{ 
 		printf ("Consturtor var\n"); 
 	}
+	void print () { printf ("CARRR\n"); };
 	~var () { printf ("Destructor var\n"); }
 
 };
@@ -49,8 +50,14 @@ int main()
 	my::shered_ptr<var> temp1 (new var);
 	my::shered_ptr<var> temp2;
 
-	temp2 = temp1;
+	temp2 = std::move(temp1);
 	
+	(*temp2).print ();
+
+	temp2.reset (new var);
+
+	printf ("point on data: %p\n", temp2.get ());
+	temp2.reset ();
 	printf ("---------------END---------------\n");
     return 0;
 }
